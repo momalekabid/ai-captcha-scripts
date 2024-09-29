@@ -26,15 +26,19 @@ def run_inference(image):
     outputs = movenet(input_image)
     keypoints_with_scores = outputs['output_0'].numpy()
     return keypoints_with_scores
+global facing_away
+facing_away = False
+global facing_forward
+facing_forward = False
 
-def determine_moves(keypoints_with_scores, threshold=0.2):
+def determine_moves(keypoints_with_scores, threshold=0.15):
+    global facing_away, facing_forward # for spins, we check that the person makes a state change
     keypoints = keypoints_with_scores[0, 0, :, :]
     
     detected_moves = []
     nose = keypoints[KEYPOINT_DICT['nose']][:2]
     left_shoulder = keypoints[KEYPOINT_DICT['left_shoulder']][:2]
     right_shoulder = keypoints[KEYPOINT_DICT['right_shoulder']][:2]
-    shoulder_distance = np.linalg.norm(left_shoulder - right_shoulder)
     nose = keypoints[KEYPOINT_DICT['nose']]
     left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
     right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
@@ -45,19 +49,25 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     left_knee = keypoints[KEYPOINT_DICT['left_knee']]
     right_knee = keypoints[KEYPOINT_DICT['right_knee']]
     
-    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold or right_knee[2] < threshold):
+    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold):
         detected_moves.append("Standing on (right) Leg")
-    elif right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold or left_knee[2] < threshold):
+        print(f"left_ankle: {left_ankle}")
+        print(f"left_knee: {left_knee}")
+        print(f"right_ankle: {right_ankle}")
+    elif right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold):
         detected_moves.append("Standing on (left) Leg")
-    # hopping
+        print(f"right_ankle: {right_ankle}")
+        print(f"right_knee: {right_knee}")
+        print(f"left_ankle: {left_ankle}")
 
-
-
-    if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
+    if np.linalg.norm(left_shoulder[:2] - right_shoulder[:2]) <= 0.05:  # shoulders are horizontally close together,
         ## TODO: add a check for if the person made a full 360 turn or not
         detected_moves.append("Spinning")
     elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
+        print(f"nose: {nose}")
+        print(f"left_wrist: {left_wrist}")
+        print(f"right_wrist: {right_wrist}")
         detected_moves.append("Hands Above Head")
     return detected_moves if detected_moves else ["No Move Detected"]
 

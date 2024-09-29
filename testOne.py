@@ -128,8 +128,6 @@ if not cap.isOpened():
 else:
     print("Camera opened successfully.")
 
-last_dance_moves = None
-dance_move_counter = 0
 
 try:
     while True:
@@ -159,7 +157,7 @@ try:
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         # show images
-        cv2.imshow('Webcam MoveNet Dance', output_image)
+        cv2.imshow('Webcam MoveNet Outline', output_image)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

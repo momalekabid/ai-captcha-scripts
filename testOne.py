@@ -39,12 +39,6 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
     right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
 
-    # if right_shoulder[0] > left_shoulder[0]:
-    #     detected_moves.append("Facing Forwards")
-    # elif abs(right_shoulder[0] - left_shoulder[0]) > 0.1:
-    #     detected_moves.append("Sideways")
-    # else:
-    #     detected_moves.append("Facing Backwards")
 
     left_ankle = keypoints[KEYPOINT_DICT['left_ankle']]
     right_ankle = keypoints[KEYPOINT_DICT['right_ankle']]
@@ -53,8 +47,10 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     
     if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold or right_knee[2] < threshold):
         detected_moves.append("Standing on (right) Leg")
-    if right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold or left_knee[2] < threshold):
+    elif right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold or left_knee[2] < threshold):
         detected_moves.append("Standing on (left) Leg")
+    # hopping
+
 
 
     if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
@@ -153,7 +149,7 @@ try:
 
         # display moves
         for i, move in enumerate(current_moves):
-            cv2.putText(output_image, f"Move {i+1}: {move}", (30, 50 + 30*i),
+            cv2.putText(output_image, f"Move: {move}", (30, 50 + 30*i),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         # show images

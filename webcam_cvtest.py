@@ -173,21 +173,22 @@ try:
                 hands_raised_count += 1
                 cv2.putText(output_image, f"Keep hands raised! Progress: {hands_raised_count}/{HANDS_RAISED_THRESHOLD}", (30, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                print(f"hands raised: {hands_raised_count}")
             else:
                 hands_raised_count = 0
                 cv2.putText(output_image, "Raise your hands!", (30, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        # Test 2: Spin around
-        elif spin_count < 100:
+        # Test 2: Spin around (and hold hands up while spinning)
+        elif spin_count < 100 and hands_up:
             if sideways:
                 spin_count += 1
             cv2.putText(output_image, f"Spin around! Progress: {spin_count}/100", (30, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
+            print(f"spin count: {spin_count}")
         # Test 3: Funny face
         elif not funny_face_detected:
-            time.sleep(5) ## wait here 
+            time.sleep(5) ## wait here for 5 seconds
             processed_frame, emotion = process_frame(frame)
             if emotion and emotion.lower() in ['happy', 'surprise']:
                 funny_face_detected = True

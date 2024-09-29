@@ -97,33 +97,21 @@ def draw_skeleton(image, keypoints_with_scores, threshold=0.3):
 
 def process_frame(frame):
     try:
-        # convert frame to grayscale for face detection
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # analyze the frame
+        predictions = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
         
-        # detect faces
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-        
-        # if faces are detected
-        if len(faces) > 0:
-            # analyze the frame
-            predictions = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+        if predictions:
+            # get emotion probabilities
+            emotion_probs = predictions[0]['emotion']
+            neutral_prob = emotion_probs['neutral']
+            non_neutral_prob = 1 - neutral_prob
             
-            # draw rectangle around each face and display emotion
-            for (x, y, w, h), prediction in zip(faces, predictions):
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                
-                # get emotion probabilities
-                emotion_probs = prediction['emotion']
-                dominant_emotion = max(emotion_probs, key=emotion_probs.get)
-                
-                cv2.putText(frame, dominant_emotion, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-            
-            return frame, dominant_emotion
+            return non_neutral_prob
         
     except Exception as e:
         print(f"Error in processing: {str(e)}")
     
-    return frame, None
+    return 0  # Return 0 if no face detected or error occurred
 
 def send_post_request(success):
     print("next")
@@ -136,8 +124,8 @@ def send_post_request(success):
     # except requests.exceptions.RequestException as e:
     #     print(f"Failed to send POST request: {e}")
 
-# Initialize webcam
-cap = cv2.VideoCapture(1)
+# init camera
+cap = cv2.VideoCapture('/dev/video4')
 
 if not cap.isOpened():
     print("Error: Could not open camera.")
@@ -147,10 +135,11 @@ print("Camera opened successfully.")
 
 # Test states
 hands_raised_count = 0
-HANDS_RAISED_THRESHOLD = 100  # Number of frames to keep hands raised
+HANDS_RAISED_THRESHOLD = 100  # number of frames to keep hands raised
 spin_count = 0
-funny_face_detected = False
 test_complete = False
+NON_NEUTRAL_THRESHOLD = 0.7  # probability threshold for non-neutral face
+non_neutral_face_detected = False
 
 try:
     while not test_complete:
@@ -188,20 +177,14 @@ try:
             print(f"spin count: {spin_count}")
         elif spin_count >= 100:
             time.sleep(5) ## wait here for 5 seconds
-            test_complete = True
-            # if not funny_face_detected:
-            #     processed_frame, emotion = process_frame(frame)
-            #     if emotion and emotion.lower() in ['happy', 'surprise']:
-            #         funny_face_detected = True
-            #         # cv2.putText(output_image, "Funny face detected! Test complete!", (30, 30),
-            #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            #         test_complete = True
-            #         print("funny face detected")
-            #     else:
-            #         # cv2.putText(output_image, "Make a funny face!", (30, 30),
-            #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            #         print("funny face not detected")
-
+            if not non_neutral_face_detected:
+                non_neutral_prob = process_frame(frame)
+                if non_neutral_prob > NON_NEUTRAL_THRESHOLD:
+                    non_neutral_face_detected = True
+                    print(f"Non-neutral face detected! Probability: {non_neutral_prob:.2f}")
+                    test_complete = True
+            else:
+                print(f"Make a non-neutral face! Current probability: {non_neutral_prob:.2f}")
         # cv2.imshow('Webcam Test', output_image)
 
         # if cv2.waitKey(1) & 0xFF == ord('q'):

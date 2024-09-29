@@ -38,11 +38,9 @@ def main():
 
     print("Camera opened successfully.")
 
-    # Set lower resolution for faster processing
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-    # For FPS calculation
     prev_frame_time = 0
     new_frame_time = 0
 
@@ -53,16 +51,16 @@ def main():
                 print("Failed to grab frame")
                 break
 
-            # Process the frame
+            # process the frame
             output_image = process_frame(frame)
 
-            # Calculate FPS
+            # calculate FPS
             new_frame_time = time.time()
             fps = 1 / (new_frame_time - prev_frame_time)
             prev_frame_time = new_frame_time
             cv2.putText(output_image, f"FPS: {int(fps)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-            # Show image
+            # show image
             cv2.imshow('DeepFace Emotion Recognition', output_image)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):

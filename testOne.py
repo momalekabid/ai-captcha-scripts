@@ -35,9 +35,14 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     left_shoulder = keypoints[KEYPOINT_DICT['left_shoulder']][:2]
     right_shoulder = keypoints[KEYPOINT_DICT['right_shoulder']][:2]
     shoulder_distance = np.linalg.norm(left_shoulder - right_shoulder)
+    nose = keypoints[KEYPOINT_DICT['nose']]
+    left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
+    right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
 
-    if right_shoulder[0] > left_shoulder[0] and right_shoulder[1] > left_shoulder[1]:
+    if right_shoulder[0] > left_shoulder[0]:
         detected_moves.append("Facing Forwards")
+    elif abs(right_shoulder[0] - left_shoulder[0]) > 0.1:
+        detected_moves.append("Sideways")
     else:
         detected_moves.append("Facing Backwards")
 
@@ -51,20 +56,16 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     if right_ankle[2] > threshold and right_knee[2] > threshold and left_ankle[2] < threshold:
         detected_moves.append("Standing on (left) Leg")
 
-    # detect hands in front of face
-    nose = keypoints[KEYPOINT_DICT['nose']]
-    left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
-    right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
+
     if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
         ## TODO: add a check for if the person made a full 360 turn or not
         detected_moves.append("Spinning")
     elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.1 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.1 and right_wrist[2] > threshold):
-        detected_moves.append("Hands in Front of Face")
-    
+        detected_moves.append("Hands Above Head")
     return detected_moves if detected_moves else ["No Move Detected"]
 
-# ddd these variables for move display
+# added these variables for move display fine-grained control
 last_move_time = time.time()
 current_moves = ["No Move Detected"]
 
@@ -91,7 +92,7 @@ def draw_skeleton(image, keypoints_with_scores, threshold=0.3):
         ('right_knee', 'right_ankle')
     ]
     
-    # Draw the skeleton with a glow effect
+    # draw the skeleton with a glow effect
     for connection in connections:
         start_idx = KEYPOINT_DICT[connection[0]]
         end_idx = KEYPOINT_DICT[connection[1]]
@@ -103,14 +104,14 @@ def draw_skeleton(image, keypoints_with_scores, threshold=0.3):
             start_pos = (int(start_point[1] * width), int(start_point[0] * height))
             end_pos = (int(end_point[1] * width), int(end_point[0] * height))
             
-            # Draw the main line
+            # draw the main line
             cv2.line(output_image, start_pos, end_pos, (0, 255, 0), 2)
             
-            # Draw the glow effect
+            # draw the glow effect
             for i in range(1, 3):
                 cv2.line(output_image, start_pos, end_pos, (0, 255, 0), 2 + i * 2, cv2.LINE_AA)
     
-    # Draw keypoints
+    # draw keypoints
     for name, idx in KEYPOINT_DICT.items():
         ky, kx, kp_conf = keypoints[idx]
         if kp_conf > threshold:
@@ -119,7 +120,7 @@ def draw_skeleton(image, keypoints_with_scores, threshold=0.3):
     
     return output_image
 
-# Initialize webcam
+# initialize webcam
 cap = cv2.VideoCapture(1)
 
 if not cap.isOpened():

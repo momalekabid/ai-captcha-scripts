@@ -39,29 +39,29 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
     right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
 
-    if right_shoulder[0] > left_shoulder[0]:
-        detected_moves.append("Facing Forwards")
-    elif abs(right_shoulder[0] - left_shoulder[0]) > 0.1:
-        detected_moves.append("Sideways")
-    else:
-        detected_moves.append("Facing Backwards")
+    # if right_shoulder[0] > left_shoulder[0]:
+    #     detected_moves.append("Facing Forwards")
+    # elif abs(right_shoulder[0] - left_shoulder[0]) > 0.1:
+    #     detected_moves.append("Sideways")
+    # else:
+    #     detected_moves.append("Facing Backwards")
 
     left_ankle = keypoints[KEYPOINT_DICT['left_ankle']]
     right_ankle = keypoints[KEYPOINT_DICT['right_ankle']]
     left_knee = keypoints[KEYPOINT_DICT['left_knee']]
     right_knee = keypoints[KEYPOINT_DICT['right_knee']]
     
-    if left_ankle[2] > threshold and left_knee[2] > threshold and right_ankle[2] < threshold:
+    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold or right_knee[2] < threshold):
         detected_moves.append("Standing on (right) Leg")
-    if right_ankle[2] > threshold and right_knee[2] > threshold and left_ankle[2] < threshold:
+    if right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold or left_knee[2] < threshold):
         detected_moves.append("Standing on (left) Leg")
 
 
     if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
         ## TODO: add a check for if the person made a full 360 turn or not
         detected_moves.append("Spinning")
-    elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.1 and left_wrist[2] > threshold) or \
-       (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.1 and right_wrist[2] > threshold):
+    elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
+       (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
         detected_moves.append("Hands Above Head")
     return detected_moves if detected_moves else ["No Move Detected"]
 

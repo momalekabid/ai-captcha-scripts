@@ -159,7 +159,7 @@ try:
             print("Failed to grab frame")
             break
 
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         keypoints_with_scores = run_inference(frame_rgb)
@@ -187,6 +187,7 @@ try:
 
         # Test 3: Funny face
         elif not funny_face_detected:
+            time.sleep(5) ## wait here 
             processed_frame, emotion = process_frame(frame)
             if emotion and emotion.lower() in ['happy', 'surprise']:
                 funny_face_detected = True

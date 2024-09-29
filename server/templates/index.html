@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRL CAPTCHA</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div id="game-container" class="{{ game_status }}">
+        <div id="header">
+            <div class="earth-time">EARTH TIME: <span id="current-time"></span></div>
+            <div class="title">IRL CAPTCHA VERIFICATION</div>
+            <div class="earth-time">EARTH TIME: <span id="current-time-2"></span></div>
+        </div>
+        <div id="success-message" style="display: none;">
+            <h2>VERIFICATION COMPLETE</h2>
+            <p>YOU ARE CONFIRMED TO BE HUMAN</p>
+        </div>
+        <div id="failure-message" style="display: none;">
+            <h2>VERIFICATION FAILED</h2>
+            <p>ROBOT DETECTED</p>
+        </div>
+        <div id="main-content">
+            <div id="left-panel">
+                <div class="panel-section">
+                    <h3>SYSTEM STATUS</h3>
+                    <div class="status-item">
+                        <span>VERIFICATION:</span>
+                        <span id="verification-status">IN PROGRESS</span>
+                    </div>
+                    <div class="status-item">
+                        <span>STEP:</span>
+                        <span id="current-step">{{ current_step + 1 }}/{{ total_steps }}</span>
+                    </div>
+                </div>
+            </div>
+            <div id="center-panel">
+                <div id="captcha-display">
+                    <h2>{{ step_name }}</h2>
+                    <p>{{ step_description }}</p>
+                </div>
+                <div id="progress-container">
+                    <div id="progress-bar" style="width: {{ (current_step / total_steps) * 100 }}%"></div>
+                    <span id="progress-text">{{ (current_step / total_steps) * 100 | int }}%</span>
+                </div>
+            </div>
+            <div id="right-panel">
+                <div class="panel-section">
+                    <h3>SYSTEM METRICS</h3>
+                    <div class="metric-item">
+                        <span>CPU LOAD:</span>
+                        <span id="cpu-load">42%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span>MEMORY:</span>
+                        <span id="memory-usage">1.2 GB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="footer-item">INITIATED: 2024</div>
+            <div class="footer-item">CLASSIFICATION: HUMAN VERIFICATION</div>
+            <div class="footer-item">LICENSE: SIL OFL</div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

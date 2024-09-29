@@ -1,0 +1,205 @@
+@font-face {
+    font-family: 'Departure Mono';
+    src: url('/static/DepartureMono-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Departure Mono', monospace;
+    background-color: #121212;
+    color: #ffa500;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#game-container {
+    background-color: #1e1e1e;
+    border: 2px solid #ffa500;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    max-width: 1200px;
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#header, #footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ffa500;
+    transition: border-color 0.3s ease;
+}
+
+#footer {
+    border-top: 1px solid #ffa500;
+    border-bottom: none;
+    margin-top: 20px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+}
+
+#main-content {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#left-panel, #right-panel {
+    width: 25%;
+}
+
+#center-panel {
+    width: 45%;
+    text-align: center;
+}
+
+.panel-section, #captcha-display, #progress-container {
+    background-color: #2a2a2a;
+    border: 1px solid #ffa500;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: border-color 0.3s ease;
+}
+
+h2, h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #ffa500;
+    padding-bottom: 5px;
+}
+
+#progress-container {
+    width: 100%;
+    height: 20px;
+    background-color: #2a2a2a;
+    border-radius: 0;
+    overflow: hidden;
+    margin-top: 20px;
+    position: relative;
+}
+
+#progress-bar {
+    height: 100%;
+    background-color: #ffa500;
+    transition: width 0.5s ease-in-out, background-color 0.3s ease;
+}
+
+#progress-text {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffa500;
+}
+
+#captcha-display {
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.status-item, .metric-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.status-item span:first-child,
+.metric-item span:first-child {
+    margin-right: 10px;
+}
+
+.status-item span:last-child,
+.metric-item span:last-child {
+    text-align: right;
+}
+
+/* Complete state */
+#game-container.complete {
+    border-color: #4CAF50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+#game-container.complete #header,
+#game-container.complete #footer,
+#game-container.complete .panel-section,
+#game-container.complete #captcha-display,
+#game-container.complete #progress-container {
+    border-color: #4CAF50;
+}
+
+#game-container.complete,
+#game-container.complete h1,
+#game-container.complete h2,
+#game-container.complete h3,
+#game-container.complete p,
+#game-container.complete .earth-time,
+#game-container.complete .footer-item,
+#game-container.complete #progress-text,
+#game-container.complete .status-item,
+#game-container.complete .metric-item {
+    color: #4CAF50;
+}
+
+#game-container.complete #progress-bar {
+    background-color: #4CAF50;
+}
+
+/* Failed state */
+#game-container.failed {
+    border-color: #FF0000;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+}
+
+#game-container.failed #header,
+#game-container.failed #footer,
+#game-container.failed .panel-section,
+#game-container.failed #captcha-display,
+#game-container.failed #progress-container {
+    border-color: #FF0000;
+}
+
+#game-container.failed,
+#game-container.failed h1,
+#game-container.failed h2,
+#game-container.failed h3,
+#game-container.failed p,
+#game-container.failed .earth-time,
+#game-container.failed .footer-item,
+#game-container.failed #progress-text,
+#game-container.failed .status-item,
+#game-container.failed .metric-item {
+    color: #FF0000;
+}
+
+#game-container.failed #progress-bar {
+    background-color: #FF0000;
+}
+
+#success-message, #failure-message {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+#success-message h2, #failure-message h2 {
+    border-bottom: none;
+}
+
+.earth-time, .footer-item {
+    white-space: nowrap;
+}

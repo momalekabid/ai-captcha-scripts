@@ -56,9 +56,6 @@ def determine_moves(keypoints_with_scores, threshold=0.15):
         detected_moves.append("Front/back")
     if (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
-        # print(f"nose: {nose}")
-        # print(f"left_wrist: {left_wrist}")
-        # print(f"right_wrist: {right_wrist}")
         detected_moves.append("Hands in the air")
     return detected_moves if detected_moves else ["No Move Detected"]
 

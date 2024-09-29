@@ -26,13 +26,9 @@ def run_inference(image):
     outputs = movenet(input_image)
     keypoints_with_scores = outputs['output_0'].numpy()
     return keypoints_with_scores
-global facing_away
-facing_away = False
-global facing_forward
-facing_forward = False
+
 
 def determine_moves(keypoints_with_scores, threshold=0.15):
-    global facing_away, facing_forward # for spins, we check that the person makes a state change
     keypoints = keypoints_with_scores[0, 0, :, :]
     
     detected_moves = []
@@ -48,27 +44,17 @@ def determine_moves(keypoints_with_scores, threshold=0.15):
     right_ankle = keypoints[KEYPOINT_DICT['right_ankle']]
     left_knee = keypoints[KEYPOINT_DICT['left_knee']]
     right_knee = keypoints[KEYPOINT_DICT['right_knee']]
-    
-    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold):
-        detected_moves.append("Standing on (right) Leg")
-        print(f"left_ankle: {left_ankle}")
-        print(f"left_knee: {left_knee}")
-        print(f"right_ankle: {right_ankle}")
-    elif right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold):
-        detected_moves.append("Standing on (left) Leg")
-        print(f"right_ankle: {right_ankle}")
-        print(f"right_knee: {right_knee}")
-        print(f"left_ankle: {left_ankle}")
 
-    if np.linalg.norm(left_shoulder[:2] - right_shoulder[:2]) <= 0.05:  # shoulders are horizontally close together,
-        ## TODO: add a check for if the person made a full 360 turn or not
-        detected_moves.append("Spinning")
-    elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
+    # detect if facing camera     
+    
+    if np.linalg.norm(left_shoulder[:2] - right_shoulder[:2]) <= 0.15:  # shoulders are horizontally close together,
+        detected_moves.append("Turning Around")
+    if (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
-        print(f"nose: {nose}")
-        print(f"left_wrist: {left_wrist}")
-        print(f"right_wrist: {right_wrist}")
-        detected_moves.append("Hands Above Head")
+        # print(f"nose: {nose}")
+        # print(f"left_wrist: {left_wrist}")
+        # print(f"right_wrist: {right_wrist}")
+        detected_moves.append("Hands in the air")
     return detected_moves if detected_moves else ["No Move Detected"]
 
 # added these variables for move display fine-grained control
@@ -134,7 +120,8 @@ if not cap.isOpened():
 else:
     print("Camera opened successfully.")
 
-
+orientation = cap.get(cv2.CAP_PROP_ORIENTATION_META)
+print(f"Camera orientation: {orientation}")
 try:
     while True:
         # capture frame-by-frame
@@ -142,7 +129,7 @@ try:
         if not ret:
             print("Failed to grab frame")
             break
-
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         # run pose estimation
         keypoints_with_scores = run_inference(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 

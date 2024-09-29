@@ -27,10 +27,11 @@ def run_inference(image):
     keypoints_with_scores = outputs['output_0'].numpy()
     return keypoints_with_scores
 
-
+global scount
+scount = 0
 def determine_moves(keypoints_with_scores, threshold=0.15):
+    global scount
     keypoints = keypoints_with_scores[0, 0, :, :]
-    
     detected_moves = []
     nose = keypoints[KEYPOINT_DICT['nose']][:2]
     left_shoulder = keypoints[KEYPOINT_DICT['left_shoulder']][:2]
@@ -47,8 +48,12 @@ def determine_moves(keypoints_with_scores, threshold=0.15):
 
     # detect if facing camera     
     
-    if np.linalg.norm(left_shoulder[:2] - right_shoulder[:2]) <= 0.15:  # shoulders are horizontally close together,
-        detected_moves.append("Turning Around")
+    if np.linalg.norm(left_shoulder[:2] - right_shoulder[:2]) < 0.1:  # shoulders are horizontally close together,
+        detected_moves.append("Sideways")
+        scount+=1
+        print(f"Sideways count: {scount}")
+    else:
+        detected_moves.append("Front/back")
     if (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
         # print(f"nose: {nose}")
@@ -121,7 +126,7 @@ else:
     print("Camera opened successfully.")
 
 orientation = cap.get(cv2.CAP_PROP_ORIENTATION_META)
-print(f"Camera orientation: {orientation}")
+# print(f"Camera orientation: {orientation}")
 try:
     while True:
         # capture frame-by-frame

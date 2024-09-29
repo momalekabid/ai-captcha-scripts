@@ -27,11 +27,14 @@ def run_inference(image):
     keypoints_with_scores = outputs['output_0'].numpy()
     return keypoints_with_scores
 
-def determine_moves(keypoints_with_scores, threshold=0.2):
+global spin1, spin2
+spin1 = False
+spin2 = False
+
+def determine_moves(keypoints_with_scores, threshold=0.5, t2=0.3):
+    global spin1, spin2
     keypoints = keypoints_with_scores[0, 0, :, :]
-    
     detected_moves = []
-    nose = keypoints[KEYPOINT_DICT['nose']][:2]
     left_shoulder = keypoints[KEYPOINT_DICT['left_shoulder']][:2]
     right_shoulder = keypoints[KEYPOINT_DICT['right_shoulder']][:2]
     shoulder_distance = np.linalg.norm(left_shoulder - right_shoulder)
@@ -44,18 +47,16 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     right_ankle = keypoints[KEYPOINT_DICT['right_ankle']]
     left_knee = keypoints[KEYPOINT_DICT['left_knee']]
     right_knee = keypoints[KEYPOINT_DICT['right_knee']]
-    
-    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold or right_knee[2] < threshold):
-        detected_moves.append("Standing on (right) Leg")
-    elif right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold or left_knee[2] < threshold):
-        detected_moves.append("Standing on (left) Leg")
-    # hopping
-
-
-
-    if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
-        ## TODO: add a check for if the person made a full 360 turn or not
-        detected_moves.append("Spinning")
+    print(f"""left_ankle: {left_ankle[2]}, left_knee: {left_knee[2]}, right_ankle: {right_ankle[2]}, right_knee: {right_knee[2]}""")
+    if left_ankle[2] > threshold and left_knee[2] > threshold and (right_ankle[2] < threshold):
+        detected_moves.append("Standing on one leg (right)")
+    if right_ankle[2] > threshold and right_knee[2] > threshold and (left_ankle[2] < threshold):
+        detected_moves.append("Standing on one leg (left)")
+    if shoulder_distance <= 0.075 and spin1:  # shoulders are horizontally close together,
+        detected_moves.append("Spinning around")
+        spin1 = False
+    elif shoulder_distance <= 0.075: 
+        spin1 = True
     elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.2 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.2 and right_wrist[2] > threshold):
         detected_moves.append("Hands Above Head")
@@ -138,9 +139,9 @@ try:
 
         moves = determine_moves(keypoints_with_scores)
 
-        # update moves if new ones are detected or if 1 seconds have passed
+        # update moves if new ones are detected or if 1 seconds h passed
         current_time = time.time()
-        if moves != ["No Move Detected"] or current_time - last_move_time >= 1:
+        if moves != ["No Move Detected"]: #or current_time - last_move_time >= 1:
             current_moves = moves
             last_move_time = current_time
 

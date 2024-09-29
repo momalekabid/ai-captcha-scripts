@@ -104,9 +104,8 @@ def process_frame(frame):
             # get emotion probabilities
             emotion_probs = predictions[0]['emotion']
             neutral_prob = emotion_probs['neutral']
-            non_neutral_prob = 1 - neutral_prob
             
-            return non_neutral_prob
+            return neutral_prob
         
     except Exception as e:
         print(f"Error in processing: {str(e)}")
@@ -138,7 +137,7 @@ hands_raised_count = 0
 HANDS_RAISED_THRESHOLD = 100  # number of frames to keep hands raised
 spin_count = 0
 test_complete = False
-NON_NEUTRAL_THRESHOLD = 0.7  # probability threshold for non-neutral face
+NEUTRAL_THRESHOLD = 0.3  # probability threshold for what classifies as a neutral face
 non_neutral_face_detected = False
 
 try:
@@ -159,7 +158,7 @@ try:
         # Test 1: Raise hands
         if hands_raised_count < HANDS_RAISED_THRESHOLD:
             if hands_up:
-                hands_raised_count += 1
+                hands_raised_count += 10
                 # cv2.putText(output_image, f"Keep hands raised! Progress: {hands_raised_count}/{HANDS_RAISED_THRESHOLD}", (30, 30),
                 #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 print(f"hands raised: {hands_raised_count}")
@@ -171,20 +170,20 @@ try:
         # Test 2: Spin around (and hold hands up while spinning)
         if spin_count < 100 and hands_up:
             if sideways:
-                spin_count += 2 
+                spin_count += 10 
             # cv2.putText(output_image, f"Spin around! Progress: {spin_count}/100", (30, 30),
             #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             print(f"spin count: {spin_count}")
         elif spin_count >= 100:
             time.sleep(5) ## wait here for 5 seconds
             if not non_neutral_face_detected:
-                non_neutral_prob = process_frame(frame)
-                if non_neutral_prob > NON_NEUTRAL_THRESHOLD:
+                neutral_prob = process_frame(frame)
+                if neutral_prob < NEUTRAL_THRESHOLD:
                     non_neutral_face_detected = True
-                    print(f"Non-neutral face detected! Probability: {non_neutral_prob:.2f}")
+                    print(f"Non-neutral face detected! Probability: {1 - neutral_prob:.2f}")
                     test_complete = True
             else:
-                print(f"Make a non-neutral face! Current probability: {non_neutral_prob:.2f}")
+                print(f"Make a non-neutral face! Current neutral probability: {neutral_prob:.2f}")
         # cv2.imshow('Webcam Test', output_image)
 
         # if cv2.waitKey(1) & 0xFF == ord('q'):

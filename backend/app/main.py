@@ -12,8 +12,8 @@ from typing import IO
 app = Flask(__name__)
 
 # Set your ElevenLabs API key here
-ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
-client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+ELEVENLABS_KEY = os.environ.get('ELEVENLABS_KEY')
+client = ElevenLabs(api_key=ELEVENLABS_KEY)
 
 # Global variable to store the camera object
 camera = None
@@ -37,7 +37,7 @@ def generate_frames():
 def text_to_speech_stream(text: str) -> IO[bytes]:
     # Perform the text-to-speech conversion
     response = client.text_to_speech.convert(
-        voice_id="pNInz6obpgDQGcFmaJgB", # Adam pre-made voice
+        voice_id="0m2tDjDewtOfXrhxqgrJ", # Adam pre-made voice
         output_format="mp3_22050_32",
         text=text,
         model_id="eleven_multilingual_v2",

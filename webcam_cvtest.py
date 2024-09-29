@@ -171,42 +171,45 @@ try:
         if hands_raised_count < HANDS_RAISED_THRESHOLD:
             if hands_up:
                 hands_raised_count += 1
-                cv2.putText(output_image, f"Keep hands raised! Progress: {hands_raised_count}/{HANDS_RAISED_THRESHOLD}", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                # cv2.putText(output_image, f"Keep hands raised! Progress: {hands_raised_count}/{HANDS_RAISED_THRESHOLD}", (30, 30),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 print(f"hands raised: {hands_raised_count}")
             else:
                 hands_raised_count = 0
-                cv2.putText(output_image, "Raise your hands!", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                # cv2.putText(output_image, "Raise your hands!", (30, 30),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         # Test 2: Spin around (and hold hands up while spinning)
-        elif spin_count < 100 and hands_up:
+        if spin_count < 100 and hands_up:
             if sideways:
-                spin_count += 1
-            cv2.putText(output_image, f"Spin around! Progress: {spin_count}/100", (30, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                spin_count += 2 
+            # cv2.putText(output_image, f"Spin around! Progress: {spin_count}/100", (30, 30),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             print(f"spin count: {spin_count}")
-        # Test 3: Funny face
-        elif not funny_face_detected:
+        elif spin_count >= 100:
             time.sleep(5) ## wait here for 5 seconds
-            processed_frame, emotion = process_frame(frame)
-            if emotion and emotion.lower() in ['happy', 'surprise']:
-                funny_face_detected = True
-                cv2.putText(output_image, "Funny face detected! Test complete!", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                test_complete = True
-            else:
-                cv2.putText(output_image, "Make a funny face!", (30, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            test_complete = True
+            # if not funny_face_detected:
+            #     processed_frame, emotion = process_frame(frame)
+            #     if emotion and emotion.lower() in ['happy', 'surprise']:
+            #         funny_face_detected = True
+            #         # cv2.putText(output_image, "Funny face detected! Test complete!", (30, 30),
+            #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            #         test_complete = True
+            #         print("funny face detected")
+            #     else:
+            #         # cv2.putText(output_image, "Make a funny face!", (30, 30),
+            #         #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            #         print("funny face not detected")
 
-        cv2.imshow('Webcam Test', output_image)
+        # cv2.imshow('Webcam Test', output_image)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+            # break
 
     # Send POST request based on test completion
-    send_post_request(test_complete)
+    # send_post_request(test_complete)
 
 finally:
     cap.release()
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()

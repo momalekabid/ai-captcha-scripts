@@ -36,12 +36,11 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     right_shoulder = keypoints[KEYPOINT_DICT['right_shoulder']][:2]
     shoulder_distance = np.linalg.norm(left_shoulder - right_shoulder)
 
-    # elif right_shoulder[0] > left_shoulder[0]:
-    #     detected_moves.append("Facing Forwards")
-    # else:
-    #     detected_moves.append("Facing Backwards")
+    if right_shoulder[0] > left_shoulder[0] and right_shoulder[1] > left_shoulder[1]:
+        detected_moves.append("Facing Forwards")
+    else:
+        detected_moves.append("Facing Backwards")
 
-    # etect standing on one leg
     left_ankle = keypoints[KEYPOINT_DICT['left_ankle']]
     right_ankle = keypoints[KEYPOINT_DICT['right_ankle']]
     left_knee = keypoints[KEYPOINT_DICT['left_knee']]
@@ -56,15 +55,16 @@ def determine_moves(keypoints_with_scores, threshold=0.2):
     nose = keypoints[KEYPOINT_DICT['nose']]
     left_wrist = keypoints[KEYPOINT_DICT['left_wrist']]
     right_wrist = keypoints[KEYPOINT_DICT['right_wrist']]
-    if shoulder_distance < 0.05:  # shoulders are horizontally close together,
-        detected_moves.append("Sideways")
+    if shoulder_distance <= 0.1:  # shoulders are horizontally close together,
+        ## TODO: add a check for if the person made a full 360 turn or not
+        detected_moves.append("Spinning")
     elif (np.linalg.norm(nose[:2] - left_wrist[:2]) < 0.1 and left_wrist[2] > threshold) or \
        (np.linalg.norm(nose[:2] - right_wrist[:2]) < 0.1 and right_wrist[2] > threshold):
         detected_moves.append("Hands in Front of Face")
     
     return detected_moves if detected_moves else ["No Move Detected"]
 
-# Add these variables for move display
+# ddd these variables for move display
 last_move_time = time.time()
 current_moves = ["No Move Detected"]
 
@@ -132,28 +132,27 @@ dance_move_counter = 0
 
 try:
     while True:
-        # Capture frame-by-frame
+        # capture frame-by-frame
         ret, frame = cap.read()
         if not ret:
             print("Failed to grab frame")
             break
 
-        # Run pose estimation
+        # run pose estimation
         keypoints_with_scores = run_inference(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-        # Determine dance moves
         moves = determine_moves(keypoints_with_scores)
 
-        # Update moves if new ones are detected or if 2 seconds have passed
+        # update moves if new ones are detected or if 1 seconds have passed
         current_time = time.time()
-        if moves != ["No Move Detected"] or current_time - last_move_time >= 2:
+        if moves != ["No Move Detected"] or current_time - last_move_time >= 1:
             current_moves = moves
             last_move_time = current_time
 
-        # Draw cool skeleton on the image
+        # draw cool skeleton on the image
         output_image = draw_skeleton(frame, keypoints_with_scores)
 
-        # Display moves
+        # display moves
         for i, move in enumerate(current_moves):
             cv2.putText(output_image, f"Move {i+1}: {move}", (30, 50 + 30*i),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
@@ -165,6 +164,5 @@ try:
             break
 
 finally:
-    # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()

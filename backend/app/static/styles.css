@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#videoFeed {
+    width: 640px;
+    height: 480px;
+    background-color: #ddd;
+    margin-bottom: 20px;
+}
+
+#startButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#instructions {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.pizza-tracker {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+}
+
+.tracker-step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.tracker-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #ddd;
+    z-index: 1;
+}
+
+.tracker-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 5px;
+    position: relative;
+    z-index: 2;
+}
+
+.tracker-icon.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tracker-label {
+    font-size: 12px;
+}

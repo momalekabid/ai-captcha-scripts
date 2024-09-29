@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealSense Camera Selector</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #videoElement { width: 640px; height: 480px; background-color: #666; }
+        select, button { margin: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>RealSense Camera Selector</h1>
+    <select id="cameraSelect"></select>
+    <button id="startButton">Start Stream</button>
+    <br>
+    <video id="videoElement" autoplay></video>
+
+    <script>
+        const video = document.getElementById('videoElement');
+        const startButton = document.getElementById('startButton');
+        const cameraSelect = document.getElementById('cameraSelect');
+
+        // Populate the dropdown with available cameras
+        async function populateCameras() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            videoDevices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.text = device.label || `Camera ${cameraSelect.length + 1}`;
+                cameraSelect.appendChild(option);
+            });
+        }
+
+        startButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        deviceId: cameraSelect.value ? {exact: cameraSelect.value} : undefined,
+                        width: 640,
+                        height: 480,
+                        frameRate: 30
+                    }
+                });
+                video.srcObject = stream;
+                console.log('Camera stream started');
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+            }
+        });
+
+        // Initialize camera list when page loads
+        populateCameras().catch(console.error);
+    </script>
+</body>
+</html>

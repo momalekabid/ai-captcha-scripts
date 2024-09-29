@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physical Human CAPTCHA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Physical Human CAPTCHA</h1>
+        <div class="pizza-tracker">
+            <div class="tracker-step">
+                <div class="tracker-icon" id="step1">1</div>
+                <div class="tracker-label">Start CAPTCHA</div>
+            </div>
+            <div class="tracker-step">
+                <div class="tracker-icon" id="step2">2</div>
+                <div class="tracker-label">Perform Action</div>
+            </div>
+            <div class="tracker-step">
+                <div class="tracker-icon" id="step3">3</div>
+                <div class="tracker-label">Verify Action</div>
+            </div>
+            <div class="tracker-step">
+                <div class="tracker-icon" id="step4">4</div>
+                <div class="tracker-label">Complete</div>
+            </div>
+        </div>
+
+        
+        <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Video feed">
+        <br>
+        <button id="startButton">Start CAPTCHA</button>
+        <button id="streamAudioButton">Stream Audio</button>
+        <p id="instructions">Welcome to the Physical Human CAPTCHA!</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#startButton').click(function() {
+                $.post('/start_captcha', function(data) {
+                    $('#instructions').text(data.message);
+                    playAudio(data.message);
+                });
+            });
+
+            function playAudio(text) {
+                $.ajax({
+                    url: '/get_audio',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({text: text}),
+                    success: function(data) {
+                        var audio = new Audio('data:audio/mpeg;base64,' + btoa(data));
+                        audio.play();
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function() {
+            $('#startButton').click(function() {
+                $.post('/start_captcha', function(data) {
+                    $('#instructions').text(data.message);
+                    playAudio(data.message);
+                    updateTracker(1);
+                });
+            });
+
+            function playAudio(text) {
+                $.ajax({
+                    url: '/get_audio',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({text: text}),
+                    success: function(data) {
+                        var audio = new Audio('data:audio/mpeg;base64,' + data);
+                        audio.play();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

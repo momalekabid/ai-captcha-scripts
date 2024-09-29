@@ -1,0 +1,6 @@
+opencv-python
+pytesseract
+Pillow
+numpy
+openai
+elevenlabs
